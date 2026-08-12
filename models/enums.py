@@ -1,0 +1,30 @@
+from enum import Enum
+
+class TokenStatus(str, Enum):
+    IDLE = "IDLE"
+    BUSY = "BUSY"
+    LOCKED = "LOCKED"
+    DISCONNECTED = "DISCONNECTED"
+
+class ScanMethod(str, Enum):
+    PKCS11 = "pkcs11"
+    CLI = "cli"
+    UNKNOWN = "unknown"
+
+class TokenType(str, Enum):
+    SIGNATURE = "E-Signature"
+    SEAL = "E-Seal"
+    UNKNOWN = "Unknown"
+
+class ErrorCode(str, Enum):
+    PIN_INVALID = "PIN_INVALID"
+    PIN_LOCKED = "PIN_LOCKED"
+    TOKEN_NOT_FOUND = "TOKEN_NOT_FOUND"
+    HARDWARE_FAILURE = "HARDWARE_FAILURE"
+    SESSION_EXPIRED = "SESSION_EXPIRED"
+    STRATEGY_NOT_READY = "STRATEGY_NOT_READY"
+    DLL_NOT_FOUND = "DLL_NOT_FOUND"
+    DLL_LOAD_FAILED = "DLL_LOAD_FAILED"
+    WATCHDATA_RUNTIME_MISSING = "WATCHDATA_RUNTIME_MISSING"
+    SMARTCARD_SERVICE_STOPPED = "SMARTCARD_SERVICE_STOPPED"
+    HEALTH_CHECK_CRITICAL = "HEALTH_CHECK_CRITICAL"

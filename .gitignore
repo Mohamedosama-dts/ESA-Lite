@@ -1,0 +1,49 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+ENV/
+env/
+
+# Cython / Compiled Extensions
+*.pyd
+*.so
+*.spec
+build/
+dist/
+dist_bin/
+
+# Node.js / Frontend
+node_modules/
+.env
+.env.local
+.env.*.local
+npm-debug.log*
+
+# Runtime / user data (never commit)
+data/logs/
+data/temp/
+data/config/
+**/user_settings.json
+**/signature_history.json
+
+# Logs
+logs/
+*.log
+
+# WiX intermediates
+*.wixobj
+*.wixpdb
+
+# IDEs
+.vscode/
+.idea/
+.cursor/
+*.swp
+
+# OS
+Thumbs.db
+Desktop.ini
+.DS_Store

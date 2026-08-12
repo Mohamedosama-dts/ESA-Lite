@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<WixLocalization Culture="ar-sa" Codepage="1256" xmlns="http://schemas.microsoft.com/wix/2006/localization">
+  <String Id="ProductName">وكيل التوقيع الإلكتروني - نسخة اللايت</String>
+  <String Id="Manufacturer">دي تي إس لخدمات التحول الرقمي</String>
+  <String Id="LaunchAppText">تشغيل برنامج ESA-Lite الآن</String>
+  <String Id="FeatureMainTitle">الملفات الأساسية</String>
+  <String Id="FeatureMainDesc">ملفات البرنامج الرئيسية والتعريفات اللازمة للتشغيل.</String>
+  <String Id="FeatureShortcutTitle">اختصار قائمة ابدأ</String>
+  <String Id="FeatureShortcutDesc">إنشاء أيقونة للوصول السريع في قائمة ابدأ.</String>
+  <String Id="FeatureDesktopTitle">اختصار سطح المكتب</String>
+  <String Id="FeatureDesktopDesc">إنشاء أيقونة للبرنامج على سطح المكتب للوصول السريع.</String>
+  <String Id="FeatureAutoStartTitle">التشغيل التلقائي</String>
+  <String Id="FeatureAutoStartDesc">تشغيل البرنامج تلقائياً عند فتح الويندوز.</String>
+  <String Id="DowngradeError">يوجد نسخة أحدث مثبتة بالفعل على هذا الجهاز.</String>
+  <String Id="AppDescription">وكيل التوقيع الإلكتروني – لايت</String>
+</WixLocalization>

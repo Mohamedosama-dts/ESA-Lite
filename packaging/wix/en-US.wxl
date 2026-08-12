@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<WixLocalization Culture="en-us" xmlns="http://schemas.microsoft.com/wix/2006/localization">
+  <String Id="ProductName">ESA-Lite</String>
+  <String Id="Manufacturer">DTS - Digital Transformation Services</String>
+  <String Id="LaunchAppText">Launch ESA-Lite Now</String>
+  <String Id="FeatureMainTitle">ESA-Lite Core</String>
+  <String Id="FeatureMainDesc">The main application files and drivers.</String>
+  <String Id="FeatureShortcutTitle">Start Menu Shortcut</String>
+  <String Id="FeatureShortcutDesc">Create a shortcut in the Start Menu.</String>
+  <String Id="FeatureDesktopTitle">Desktop Shortcut</String>
+  <String Id="FeatureDesktopDesc">Create a shortcut on your desktop.</String>
+  <String Id="FeatureAutoStartTitle">Auto Start with Windows</String>
+  <String Id="FeatureAutoStartDesc">Launch ESA-Lite automatically when Windows starts.</String>
+  <String Id="DowngradeError">A newer version of [ProductName] is already installed.</String>
+  <String Id="AppDescription">Electronic Signature Agent – Lite</String>
+</WixLocalization>

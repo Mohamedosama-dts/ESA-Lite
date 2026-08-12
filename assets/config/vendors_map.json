@@ -1,0 +1,22 @@
+{
+    "known_drivers": [
+        "eps2003csp11.dll",
+        "entersafe_p11.dll",
+        "wdpkcs.dll"
+    ],
+    "no_assets_fallback": [
+        "wdpkcs.dll"
+    ],
+    "vendor_install_globs": {
+        "wdpkcs.dll": [
+            "Watchdata/PROXKey CSP India V3.0/wdpkcs.dll",
+            "Watchdata/*/wdpkcs.dll"
+        ]
+    },
+    "vendor_mapping": {
+        "EnterSafe": "eps2003csp11.dll",
+        "Feitian": "eps2003csp11.dll",
+        "WatchData": "wdpkcs.dll",
+        "Watchdata": "wdpkcs.dll"
+    }
+}

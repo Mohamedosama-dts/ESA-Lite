@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi" xmlns:bal="http://schemas.microsoft.com/wix/BalExtension">
+    <!-- RepoRoot must be passed by candle: -dRepoRoot=<repo-root> -->
+    <Bundle Name="ESA-Lite" Version="2.1.0" Manufacturer="DTS" UpgradeCode="f8c3d4e5-1234-4abc-def1-234567890abc" IconSourceFile="$(var.RepoRoot)\assets\icon.ico">
+        <BootstrapperApplicationRef Id="WixStandardBootstrapperApplication.RtfLicense">
+            <bal:WixStandardBootstrapperApplication
+                LicenseFile="$(var.RepoRoot)\assets\license_en.rtf"
+                LogoFile="$(var.RepoRoot)\assets\logo.png"
+                SuppressOptionsUI="no" />
+        </BootstrapperApplicationRef>
+
+        <Chain>
+            <MsiPackage SourceFile="$(var.RepoRoot)\dist_bin\ESA_Lite_en.msi" InstallCondition="UserLanguage = 1033" />
+            <MsiPackage SourceFile="$(var.RepoRoot)\dist_bin\ESA_Lite_ar.msi" InstallCondition="UserLanguage = 1025" />
+        </Chain>
+    </Bundle>
+</Wix>

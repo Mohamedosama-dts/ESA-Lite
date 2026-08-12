@@ -1,0 +1,10 @@
+pywebview
+PyKCS11==1.5.18
+pyscard>=2.0.0
+cryptography==46.0.5
+pydantic==2.12.5
+pystray>=0.19.5
+Pillow>=10.0.0
+asn1crypto
+typing-extensions==4.15.0
+typing-inspection==0.4.2

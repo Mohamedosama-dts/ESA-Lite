@@ -1,0 +1,287 @@
+name: ESA-Lite Build Pipeline
+
+on:
+  push:
+    branches: [ main, master ]
+    tags: [ 'v*' ]
+  pull_request:
+    branches: [ main, master ]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    timeout-minutes: 60
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Build Frontend Assets
+        run: |
+          npm ci
+          npm run build
+          if (!(Test-Path "interfaces\ui\dist\locales")) { New-Item -ItemType Directory -Path "interfaces\ui\dist\locales" | Out-Null }
+          Copy-Item -Path "src\assets\locales\*" -Destination "interfaces\ui\dist\locales\" -Recurse -Force
+        shell: pwsh
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install Python Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install nuitka==4.1.3 zstandard==0.25.0
+
+      - name: Cache Nuitka
+        id: nuitka-cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~\AppData\Local\Nuitka\Nuitka\Cache
+          key: nuitka-lite-v1-${{ runner.os }}-py3.11-${{ hashFiles('requirements.txt', 'main.py', 'config/**/*.py', 'core/**/*.py', 'models/**/*.py', 'interfaces/**/*.py') }}
+          restore-keys: |
+            nuitka-lite-v1-${{ runner.os }}-py3.11-
+            nuitka-lite-v1-${{ runner.os }}-
+
+      - name: Ensure Dependency Walker
+        shell: pwsh
+        run: |
+          $depWalkDir = "$env:LOCALAPPDATA\Nuitka\Nuitka\Cache\downloads\depends\x86_64"
+          $dependsExe = Join-Path $depWalkDir "depends.exe"
+          if (Test-Path $dependsExe) {
+            Write-Host "Dependency Walker already present (cache hit)."
+            exit 0
+          }
+          New-Item -ItemType Directory -Force -Path $depWalkDir | Out-Null
+          $url = "https://dependencywalker.com/depends22_x64.zip"
+          $maxRetries = 3
+          $attempt = 0
+          $ready = $false
+          do {
+            try {
+              Invoke-WebRequest -Uri $url -OutFile "$depWalkDir\depends.zip" -TimeoutSec 30
+              Expand-Archive -Path "$depWalkDir\depends.zip" -DestinationPath $depWalkDir -Force
+              Write-Host "Dependency Walker ready."
+              $ready = $true
+              break
+            } catch {
+              $attempt++
+              Write-Host "Attempt $attempt failed. Retrying..."
+              Start-Sleep -Seconds 5
+            }
+          } while ($attempt -lt $maxRetries)
+          if (-not $ready) {
+            throw "Failed to download/extract Dependency Walker after $maxRetries attempts"
+          }
+
+      - name: Build EXE with Nuitka
+        shell: cmd
+        env:
+          NUITKA_ACCEPT_DOWNLOADS: 'yes'
+        run: |
+          python -m nuitka ^
+            --standalone ^
+            --onefile ^
+            --python-flag=no_docstrings ^
+            --python-flag=no_asserts ^
+            --include-data-dir=assets=assets ^
+            --include-data-dir=interfaces/ui/dist=interfaces/ui/dist ^
+            --include-package=pystray ^
+            --include-package=PIL ^
+            --include-package=cryptography ^
+            --include-package=webview ^
+            --nofollow-import-to=unittest ^
+            --nofollow-import-to=pydoc ^
+            --nofollow-import-to=tkinter ^
+            --nofollow-import-to=webview.platforms.android ^
+            --nofollow-import-to=webview.platforms.cocoa ^
+            --nofollow-import-to=webview.platforms.gtk ^
+            --nofollow-import-to=webview.platforms.qt ^
+            --disable-plugin=pywebview ^
+            --windows-console-mode=disable ^
+            --windows-icon-from-ico=assets/icon.ico ^
+            --output-dir=dist_bin ^
+            --output-filename=ESA_Lite_v2.1.0 ^
+            --include-windows-runtime-dlls=yes ^
+            --jobs=%NUMBER_OF_PROCESSORS% ^
+            --windows-company-name=DTS ^
+            --windows-product-name=ESA-Lite ^
+            --windows-file-description="Electronic Signature Agent - Lite" ^
+            --windows-product-version=2.1.0 ^
+            --windows-file-version=2.1.0 ^
+            --copyright="Copyright (c) 2026 DTS Digital Transformation Services" ^
+            --remove-output ^
+            main.py
+
+      - name: Smoke runtime paths (AppData)
+        shell: pwsh
+        env:
+          ESA_PATHS_OUT: ${{ runner.temp }}\esa_lite_runtime_paths.json
+        run: |
+          $exe = "dist_bin\ESA_Lite_v2.1.0.exe"
+          if (!(Test-Path $exe)) { throw "Missing $exe" }
+          $pathsFile = $env:ESA_PATHS_OUT
+          if (Test-Path $pathsFile) { Remove-Item $pathsFile -Force }
+
+          $proc = Start-Process -FilePath (Resolve-Path $exe) -ArgumentList '--print-runtime-paths' -Wait -PassThru -NoNewWindow
+          Write-Host "EXE ExitCode=$($proc.ExitCode) (null is OK for GUI subsystem)"
+
+          $deadline = (Get-Date).AddSeconds(45)
+          while (-not (Test-Path $pathsFile) -and (Get-Date) -lt $deadline) {
+            Start-Sleep -Milliseconds 250
+          }
+          if (!(Test-Path $pathsFile)) {
+            throw "Missing paths report file: $pathsFile (ExitCode=$($proc.ExitCode))"
+          }
+
+          if ($null -ne $proc.ExitCode -and $proc.ExitCode -ne 0) {
+            throw "print-runtime-paths exited with $($proc.ExitCode)"
+          }
+
+          $out = Get-Content -Raw -Path $pathsFile
+          Write-Host $out
+          $data = $out | ConvertFrom-Json
+          if (-not $data.IS_FROZEN) { throw "IS_FROZEN must be true in packaged binary." }
+          $norm = ([string]$data.DATA_DIR) -replace '/', '\'
+          if ($norm -notlike "*\DTS\ESA-Lite") {
+            throw "DATA_DIR must be under %LOCALAPPDATA%\DTS\ESA-Lite. Got: $($data.DATA_DIR)"
+          }
+          if ($norm -match '\\onefile_') {
+            throw "Frozen DATA_DIR must not use onefile unpack path. Got: $($data.DATA_DIR)"
+          }
+          Write-Host "Runtime paths smoke OK."
+
+      - name: Cache WiX Toolset
+        if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master' || startsWith(github.ref, 'refs/tags/v'))
+        id: wix-cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            C:\Program Files (x86)\WiX Toolset v3.14
+            C:\Program Files (x86)\WiX Toolset v3.11
+            C:\Program Files\WiX Toolset v3.14
+          key: wix-v3-14-windows
+
+      - name: Ensure WiX Toolset on PATH
+        if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master' || startsWith(github.ref, 'refs/tags/v'))
+        shell: pwsh
+        run: |
+          $candidates = @(
+            "C:\Program Files (x86)\WiX Toolset v3.14\bin",
+            "C:\Program Files (x86)\WiX Toolset v3.11\bin",
+            "C:\Program Files\WiX Toolset v3.14\bin"
+          )
+          foreach ($dir in $candidates) {
+            if (Test-Path (Join-Path $dir "candle.exe")) {
+              echo "$dir" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+              Write-Host "WiX on PATH: $dir"
+              exit 0
+            }
+          }
+          $candle = Get-Command candle -ErrorAction SilentlyContinue
+          if ($candle) {
+            Write-Host "WiX already on PATH: $($candle.Source)"
+            exit 0
+          }
+          Write-Host "Installing WiX Toolset v3 via Chocolatey..."
+          choco install wixtoolset -y --no-progress
+          foreach ($dir in $candidates) {
+            if (Test-Path (Join-Path $dir "candle.exe")) {
+              echo "$dir" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+              Write-Host "Added WiX bin to PATH: $dir"
+              exit 0
+            }
+          }
+          throw "WiX candle.exe not found after install."
+
+      - name: Build MSI Installer (WiX)
+        if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master' || startsWith(github.ref, 'refs/tags/v'))
+        shell: cmd
+        run: |
+          set REPO_ROOT=%CD%
+          candle -ext WixUIExtension -ext WixUtilExtension -dRepoRoot=%REPO_ROOT% -dLanguage=1033 -dLicenseRtf=%REPO_ROOT%\assets\license_en.rtf packaging\wix\setup.wxs -o packaging\wix\setup_en.wixobj
+          light -ext WixUIExtension -ext WixUtilExtension -loc packaging\wix\en-US.wxl packaging\wix\setup_en.wixobj -o dist_bin\ESA_Lite_en.msi
+          candle -ext WixUIExtension -ext WixUtilExtension -dRepoRoot=%REPO_ROOT% -dLanguage=1025 -dLicenseRtf=%REPO_ROOT%\assets\license_ar.rtf packaging\wix\setup.wxs -o packaging\wix\setup_ar.wixobj
+          light -ext WixUIExtension -ext WixUtilExtension -loc packaging\wix\ar-SA.wxl packaging\wix\setup_ar.wixobj -o dist_bin\ESA_Lite_ar.msi
+
+      - name: Build Final EXE Bundle
+        if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master' || startsWith(github.ref, 'refs/tags/v'))
+        shell: cmd
+        run: |
+          set REPO_ROOT=%CD%
+          candle -ext WixBalExtension -dRepoRoot=%REPO_ROOT% packaging\wix\bundle.wxs -o packaging\wix\bundle.wixobj
+          light -ext WixBalExtension packaging\wix\bundle.wixobj -o dist_bin\ESA_Lite_Setup_v2.1.0.exe
+
+      - name: Assert contract assets
+        if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master' || startsWith(github.ref, 'refs/tags/v'))
+        shell: pwsh
+        run: |
+          $required = @(
+            "dist_bin\ESA_Lite_v2.1.0.exe",
+            "dist_bin\ESA_Lite_en.msi",
+            "dist_bin\ESA_Lite_ar.msi"
+          )
+          foreach ($path in $required) {
+            if (!(Test-Path -LiteralPath $path)) {
+              throw "Missing required asset for DEPLOY_ARTIFACT_CONTRACT: $path"
+            }
+            $item = Get-Item -LiteralPath $path
+            Write-Host ("OK {0} ({1:N0} bytes)" -f $item.Name, $item.Length)
+          }
+          Write-Host "Deploy contract assert OK."
+
+      - name: Upload EXE Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ESA-Lite-Core-Executable
+          path: dist_bin/ESA_Lite_v2.1.0.exe
+          retention-days: 7
+
+      - name: Upload Final Setup Bundle (EXE)
+        if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master' || startsWith(github.ref, 'refs/tags/v'))
+        uses: actions/upload-artifact@v4
+        with:
+          name: ESA-Lite-Final-Setup
+          path: dist_bin/ESA_Lite_Setup_v2.1.0.exe
+          retention-days: 7
+
+      - name: Upload Intermediate MSI Artifacts
+        if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master' || startsWith(github.ref, 'refs/tags/v'))
+        uses: actions/upload-artifact@v4
+        with:
+          name: ESA-Lite-Localized-MSIs
+          path: |
+            dist_bin/ESA_Lite_en.msi
+            dist_bin/ESA_Lite_ar.msi
+          retention-days: 7
+          if-no-files-found: error
+
+      - name: Create GitHub Release
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            dist_bin/ESA_Lite_v2.1.0.exe
+            dist_bin/ESA_Lite_en.msi
+            dist_bin/ESA_Lite_ar.msi
+          generate_release_notes: true
+          fail_on_unmatched_files: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

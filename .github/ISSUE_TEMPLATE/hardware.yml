@@ -1,0 +1,40 @@
+name: Token / hardware
+description: A USB token is missing, misdetected, or needs a vendor map entry
+title: "[hardware] "
+labels: ["hardware"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        For PKCS#11 discovery only. Do not attach PINs, private keys, or full certificate dumps.
+  - type: input
+    id: vendor
+    attributes:
+      label: Vendor / brand
+      placeholder: e.g. WatchData, Feitian, EnterSafe
+    validations:
+      required: true
+  - type: input
+    id: model
+    attributes:
+      label: Token model
+      placeholder: e.g. PROXKey, ePass2003
+    validations:
+      required: true
+  - type: input
+    id: dll
+    attributes:
+      label: PKCS#11 DLL (if known)
+      placeholder: e.g. wdpkcs.dll, eps2003csp11.dll
+  - type: input
+    id: windows
+    attributes:
+      label: Windows version
+      placeholder: e.g. Windows 11 24H2 x64
+  - type: textarea
+    id: what
+    attributes:
+      label: What happens
+      placeholder: Token not listed, wrong label, login fails, health check warning, …
+    validations:
+      required: true
