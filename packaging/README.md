@@ -21,6 +21,8 @@ There is **no** secret baking. Tags `v*` publish a GitHub Release with the three
 
 Writable data is always AppData. Nuitka `onefile_*` unpack is read-only assets only. See [docs/SETTINGS.md](../docs/SETTINGS.md).
 
+**ePass middleware (MSI):** `setup.wxs` copies `assets/drivers/x64` → System32 and `assets/drivers/x86` → SysWOW64, and registers EnterSafe CSP/KSP + Calais ATR so **ITIDA** (32-bit) can sign without Feitian UI. PKCS#11 assets fallback inside the app does not replace that OS registration — see [docs/HARDWARE.md](../docs/HARDWARE.md).
+
 **CI smoke:** after Nuitka, the workflow runs `ESA_Lite_v2.1.0.exe --print-runtime-paths` (JSON via `ESA_PATHS_OUT`). Success requires `IS_FROZEN`, `DATA_DIR` under `...\DTS\ESA-Lite`, and no `\onefile_`.
 
 **CI speed:** PRs build UI + EXE + smoke only. MSI/Bundle run on push to `main`/`master` or tag `v*`.

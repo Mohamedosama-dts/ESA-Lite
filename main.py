@@ -54,8 +54,11 @@ def main():
     ensure_dirs()
 
     # تهيئة اللوجر أولاً لضمان تسجيل أي خطأ في الـ Scope
+    is_cli = "--cli" in sys.argv
+    start_in_tray = "--tray" in sys.argv
+
     from config.logger_manager import setup_global_logger
-    setup_global_logger("AGENT-UI")
+    setup_global_logger("CLI-DEBUG" if is_cli else "AGENT-UI")
 
     report = runtime_paths_report()
     logger.info(
@@ -64,10 +67,6 @@ def main():
         report["DATA_DIR"],
         report["USER_SETTINGS"],
     )
-
-    # التحقق من وسائط سطر الأوامر لتحديد الوضع (GUI أو CLI)
-    is_cli = "--cli" in sys.argv
-    start_in_tray = "--tray" in sys.argv
 
     if is_cli:
         from interfaces.cli.cli_app import run_cli

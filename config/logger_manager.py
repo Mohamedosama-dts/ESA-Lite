@@ -29,6 +29,14 @@ def setup_global_logger(app_name: str):
 
     root_logger = logging.getLogger()
     root_logger.setLevel(logging.DEBUG)
+    # Avoid duplicate console/file lines when setup is called more than once
+    # (e.g. main.py then run_cli).
+    for handler in root_logger.handlers[:]:
+        root_logger.removeHandler(handler)
+        try:
+            handler.close()
+        except Exception:
+            pass
     root_logger.addHandler(file_handler)
     root_logger.addHandler(console_handler)
     

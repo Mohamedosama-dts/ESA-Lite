@@ -5,7 +5,6 @@ import sys
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..")))
 
 from core.containers import ApplicationScope
-from config.logger_manager import setup_global_logger
 
 def print_banner():
     print("\nESA-Lite CLI 2.1.0")
@@ -29,11 +28,7 @@ def list_tokens_action(engine):
         return []
 
 def run_cli():
-    # تهيئة اللوجر في وضع الكونسول للاختبار
-    setup_global_logger("CLI-DEBUG")
-    
-    # تهيئة الخدمات الأساسية
-    # في وضع CLI، نفضل التهيئة المباشرة بدون خيوط خلفية (Monitor) لتجنب BEX64
+    # Logger is configured once in main.py (CLI-DEBUG).
     print("Initializing Core Engine...")
     try:
         # اكتفاء بطلب المحرك، هو سيتكفل بالـ HealthCheck داخلياً

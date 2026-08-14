@@ -2,10 +2,23 @@
 
 All notable changes to ESA-Lite are documented here.
 
-## 2.0.0 — baseline
+## Unreleased
 
-Initial Lite edition: Vue 3 + pywebview UI, PKCS#11 engine, CLI, Nuitka + WiX packaging. Token display, PIN, and certificate view only.
+### Windows Certificate Store
 
+- After publishing the public cert to `CURRENT_USER\MY`, call `CryptFindCertificateKeyProvInfo` (silent) so the entry links to the token CSP/KSP (`HasPrivateKey=True` when middleware is present)
+- Skip `CryptFind…` when EnterSafe CSP is not registered; never treat a failed key link as publish failure (avoids AV / false “publish failed”)
+- Docs: ITIDA Web Signer `cmd=store` only lists certs with a private-key association; ITIDA has **no** PKCS#11 assets fallback
+- **Verified (WatchData / PROXKey):** after ESA-Lite login, cert appears in ITIDA store picker and `cmd=sign` succeeds on ETA preprod when vendor CSP is installed
+- **Verified (ePass / EnterSafe):** ITIDA `cmd=store` + `cmd=sign` on ETA preprod with ESA-Lite silent CSP/KSP/Calais registration only (no Feitian ePassManager UI)
+- Logger: avoid duplicate console lines when `setup_global_logger` runs more than once
+
+### Packaging / ePass middleware
+
+- MSI installs `eps2003csp11` **x64 → System32** and **x86 → SysWOW64**
+- MSI registers `EnterSafe ePass2003 CSP v1.0` (native + WOW), KSP, and Calais ATR mapping for ITIDA (32-bit)
+- Bundled `assets/drivers/x86/` for SysWOW64; PKCS#11 assets fallback remains ESA-Lite-only
+- Fix ExitDialog “Launch now”: condition used `WIXUI_EXITDIALOGOPTIONALCHECKBOXTEXT` (label) instead of `WIXUI_EXITDIALOGOPTIONALCHECKBOX` (checked state), so the app never started after install
 ## 2.1.0
 
 Public-repo hardening on top of 2.0.0.
@@ -47,3 +60,7 @@ Public-repo hardening on top of 2.0.0.
 
 - Public README, architecture, hardware, settings, WinCert
 - Removed stale `structure.txt`
+
+## 2.0.0 — baseline
+
+Initial Lite edition: Vue 3 + pywebview UI, PKCS#11 engine, CLI, Nuitka + WiX packaging. Token display, PIN, and certificate view only.
