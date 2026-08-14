@@ -33,6 +33,7 @@
             <ComponentRef Id="SystemDrivers" />
             <ComponentRef Id="SystemDriversWow" />
             <ComponentRef Id="EnterSafeCryptoReg" />
+            <ComponentRef Id="EnterSafeCryptoRegWow" />
 
             <Feature Id="ShortcutsFeature" Title="!(loc.FeatureShortcutTitle)" Description="!(loc.FeatureShortcutDesc)" Level="1">
                 <ComponentRef Id="ApplicationShortcut" />
@@ -96,16 +97,11 @@
             </Component>
         </DirectoryRef>
 
-        <!-- EnterSafe CSP (native + WOW), KSP, Calais ATR→CSP — enables ITIDA x86 Web Signer without Feitian UI -->
+        <!-- EnterSafe CSP/KSP/Calais — native 64-bit view (ICE80: no [SystemFolder] here) -->
         <DirectoryRef Id="TARGETDIR">
             <Component Id="EnterSafeCryptoReg" Guid="b7c8d9e0-1234-5678-9abc-def012345678" Win64="yes" Permanent="yes">
                 <RegistryKey Root="HKLM" Key="SOFTWARE\Microsoft\Cryptography\Defaults\Provider\EnterSafe ePass2003 CSP v1.0" ForceCreateOnInstall="yes">
                     <RegistryValue Name="Image Path" Type="string" Value="[System64Folder]eps2003csp11.dll" KeyPath="yes" />
-                    <RegistryValue Name="Type" Type="integer" Value="1" />
-                    <RegistryValue Name="Signature" Type="binary" Value="C7FB3DE5EB42B9070E36BD0FF58DEAAAC3B17A8F72BFE032ADD566136280B5C931E7DF471F773F3824ECC436942D0C749F44F674DB0503ACE83009ECEDED524D2F03E5D32C71D4DE2FFFAE50E7E95FC43785204A18D10688F676F0A4B357224B5BFD73C23E37511064C51FF731AD8DC4FF5845567EC13EF33F864855B3A5E41A0000000000000000" />
-                </RegistryKey>
-                <RegistryKey Root="HKLM" Key="SOFTWARE\WOW6432Node\Microsoft\Cryptography\Defaults\Provider\EnterSafe ePass2003 CSP v1.0" ForceCreateOnInstall="yes">
-                    <RegistryValue Name="Image Path" Type="string" Value="[SystemFolder]eps2003csp11.dll" />
                     <RegistryValue Name="Type" Type="integer" Value="1" />
                     <RegistryValue Name="Signature" Type="binary" Value="C7FB3DE5EB42B9070E36BD0FF58DEAAAC3B17A8F72BFE032ADD566136280B5C931E7DF471F773F3824ECC436942D0C749F44F674DB0503ACE83009ECEDED524D2F03E5D32C71D4DE2FFFAE50E7E95FC43785204A18D10688F676F0A4B357224B5BFD73C23E37511064C51FF731AD8DC4FF5845567EC13EF33F864855B3A5E41A0000000000000000" />
                 </RegistryKey>
@@ -123,7 +119,15 @@
                     <RegistryValue Name="ATR" Type="binary" Value="3B9F958131FE9F006646530500000071DF000000000000" />
                     <RegistryValue Name="ATRMask" Type="binary" Value="FFFFFFFFFFFFFFFFFFFFFFFF000000FFFFFFFFFFFFFF00" />
                 </RegistryKey>
-                <RegistryKey Root="HKLM" Key="SOFTWARE\WOW6432Node\Microsoft\Cryptography\Calais\SmartCards\ePass2003" ForceCreateOnInstall="yes">
+            </Component>
+            <!-- 32-bit view for ITIDA (Win64=no → HKLM\SOFTWARE maps to WOW6432Node) -->
+            <Component Id="EnterSafeCryptoRegWow" Guid="c9d0e1f2-3456-789a-bcde-f0123456789a" Win64="no" Permanent="yes">
+                <RegistryKey Root="HKLM" Key="SOFTWARE\Microsoft\Cryptography\Defaults\Provider\EnterSafe ePass2003 CSP v1.0" ForceCreateOnInstall="yes">
+                    <RegistryValue Name="Image Path" Type="string" Value="[SystemFolder]eps2003csp11.dll" KeyPath="yes" />
+                    <RegistryValue Name="Type" Type="integer" Value="1" />
+                    <RegistryValue Name="Signature" Type="binary" Value="C7FB3DE5EB42B9070E36BD0FF58DEAAAC3B17A8F72BFE032ADD566136280B5C931E7DF471F773F3824ECC436942D0C749F44F674DB0503ACE83009ECEDED524D2F03E5D32C71D4DE2FFFAE50E7E95FC43785204A18D10688F676F0A4B357224B5BFD73C23E37511064C51FF731AD8DC4FF5845567EC13EF33F864855B3A5E41A0000000000000000" />
+                </RegistryKey>
+                <RegistryKey Root="HKLM" Key="SOFTWARE\Microsoft\Cryptography\Calais\SmartCards\ePass2003" ForceCreateOnInstall="yes">
                     <RegistryValue Name="Crypto Provider" Type="string" Value="EnterSafe ePass2003 CSP v1.0" />
                     <RegistryValue Name="ATR" Type="binary" Value="3B9F958131FE9F006646530500000071DF000000000000" />
                     <RegistryValue Name="ATRMask" Type="binary" Value="FFFFFFFFFFFFFFFFFFFFFFFF000000FFFFFFFFFFFFFF00" />
