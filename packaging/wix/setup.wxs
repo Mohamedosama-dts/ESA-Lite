@@ -20,7 +20,7 @@
         <Property Id="WIXUI_EXITDIALOGOPTIONALCHECKBOX" Value="1" />
         <Property Id="WixShellExecTarget" Value="[#ESA_EXE]" />
         <!-- Immediate: ShellExecute as the interactive user after elevated MSI UI. -->
-        <CustomAction Id="LaunchApplication" BinaryKey="WixCA" DllEntry="WixShellExec" Impersonate="yes" Return="asyncNoWait" />
+        <CustomAction Id="LaunchApplication" BinaryKey="WixCA" DllEntry="WixShellExec" Impersonate="yes" />
 
         <UI>
             <UIRef Id="WixUI_FeatureTree" />
