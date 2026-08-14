@@ -118,14 +118,14 @@ jobs:
             --windows-console-mode=disable ^
             --windows-icon-from-ico=assets/icon.ico ^
             --output-dir=dist_bin ^
-            --output-filename=ESA_Lite_v2.1.0 ^
+            --output-filename=ESA_Lite_v2.1.1 ^
             --include-windows-runtime-dlls=yes ^
             --jobs=%NUMBER_OF_PROCESSORS% ^
             --windows-company-name=DTS ^
             --windows-product-name=ESA-Lite ^
             --windows-file-description="Electronic Signature Agent - Lite" ^
-            --windows-product-version=2.1.0 ^
-            --windows-file-version=2.1.0 ^
+            --windows-product-version=2.1.1 ^
+            --windows-file-version=2.1.1 ^
             --copyright="Copyright (c) 2026 DTS Digital Transformation Services" ^
             --remove-output ^
             main.py
@@ -135,7 +135,7 @@ jobs:
         env:
           ESA_PATHS_OUT: ${{ runner.temp }}\esa_lite_runtime_paths.json
         run: |
-          $exe = "dist_bin\ESA_Lite_v2.1.0.exe"
+          $exe = "dist_bin\ESA_Lite_v2.1.1.exe"
           if (!(Test-Path $exe)) { throw "Missing $exe" }
           $pathsFile = $env:ESA_PATHS_OUT
           if (Test-Path $pathsFile) { Remove-Item $pathsFile -Force }
@@ -227,14 +227,14 @@ jobs:
         run: |
           set REPO_ROOT=%CD%
           candle -ext WixBalExtension -dRepoRoot=%REPO_ROOT% packaging\wix\bundle.wxs -o packaging\wix\bundle.wixobj
-          light -ext WixBalExtension packaging\wix\bundle.wixobj -o dist_bin\ESA_Lite_Setup_v2.1.0.exe
+          light -ext WixBalExtension packaging\wix\bundle.wixobj -o dist_bin\ESA_Lite_Setup_v2.1.1.exe
 
       - name: Assert contract assets
         if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master' || startsWith(github.ref, 'refs/tags/v'))
         shell: pwsh
         run: |
           $required = @(
-            "dist_bin\ESA_Lite_v2.1.0.exe",
+            "dist_bin\ESA_Lite_v2.1.1.exe",
             "dist_bin\ESA_Lite_en.msi",
             "dist_bin\ESA_Lite_ar.msi"
           )
@@ -251,7 +251,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: ESA-Lite-Core-Executable
-          path: dist_bin/ESA_Lite_v2.1.0.exe
+          path: dist_bin/ESA_Lite_v2.1.1.exe
           retention-days: 7
 
       - name: Upload Final Setup Bundle (EXE)
@@ -259,7 +259,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: ESA-Lite-Final-Setup
-          path: dist_bin/ESA_Lite_Setup_v2.1.0.exe
+          path: dist_bin/ESA_Lite_Setup_v2.1.1.exe
           retention-days: 7
 
       - name: Upload Intermediate MSI Artifacts
@@ -278,7 +278,7 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           files: |
-            dist_bin/ESA_Lite_v2.1.0.exe
+            dist_bin/ESA_Lite_v2.1.1.exe
             dist_bin/ESA_Lite_en.msi
             dist_bin/ESA_Lite_ar.msi
           generate_release_notes: true

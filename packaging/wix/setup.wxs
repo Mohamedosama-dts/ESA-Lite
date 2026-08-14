@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi" xmlns:util="http://schemas.microsoft.com/wix/UtilExtension">
     <!-- RepoRoot must be passed by candle: -dRepoRoot=<absolute-or-relative-repo-root> -->
-    <Product Id="*" Name="!(loc.ProductName)" Language="$(var.Language)" Codepage="1256" Version="2.1.0" Manufacturer="!(loc.Manufacturer)" UpgradeCode="e7b2f1a4-1234-4567-89ab-cdef12345678">
+    <Product Id="*" Name="!(loc.ProductName)" Language="$(var.Language)" Codepage="1256" Version="2.1.1" Manufacturer="!(loc.Manufacturer)" UpgradeCode="e7b2f1a4-1234-4567-89ab-cdef12345678">
         <Package InstallerVersion="200" Compressed="yes" InstallScope="perMachine" Platform="x64" />
 
         <MajorUpgrade Schedule="afterInstallInitialize" DowngradeErrorMessage="!(loc.DowngradeError)" />
@@ -77,7 +77,7 @@
     <Fragment>
         <ComponentGroup Id="ProductComponents" Directory="INSTALLFOLDER">
             <Component Id="MainExecutable" Guid="a1b2c3d4-5678-90ab-cdef-1234567890ab" Win64="yes">
-                <File Id="ESA_EXE" Source="$(var.RepoRoot)\dist_bin\ESA_Lite_v2.1.0.exe" Name="ESA_Lite.exe" KeyPath="yes" Checksum="yes" />
+                <File Id="ESA_EXE" Source="$(var.RepoRoot)\dist_bin\ESA_Lite_v2.1.1.exe" Name="ESA_Lite.exe" KeyPath="yes" Checksum="yes" />
             </Component>
         </ComponentGroup>
 

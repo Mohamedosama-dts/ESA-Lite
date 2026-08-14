@@ -3,7 +3,7 @@ setlocal
 cd /d "%~dp0.."
 
 echo ---------------------------------------------------
-echo ESA-Lite Nuitka Native Compilation (v2.1.0)
+echo ESA-Lite Nuitka Native Compilation (v2.1.1)
 echo ---------------------------------------------------
 echo NOTE: Flags mirror .github/workflows/build.yml except
 echo       --windows-console-mode=attach (CI uses disable).
@@ -43,14 +43,14 @@ python -m nuitka ^
     --windows-console-mode=attach ^
     --windows-icon-from-ico=assets/icon.ico ^
     --output-dir=dist_bin ^
-    --output-filename=ESA_Lite_v2.1.0 ^
+    --output-filename=ESA_Lite_v2.1.1 ^
     --include-windows-runtime-dlls=yes ^
     --jobs=3 ^
     --windows-company-name=DTS ^
     --windows-product-name=ESA-Lite ^
     --windows-file-description="Electronic Signature Agent - Lite" ^
-    --windows-product-version=2.1.0 ^
-    --windows-file-version=2.1.0 ^
+    --windows-product-version=2.1.1 ^
+    --windows-file-version=2.1.1 ^
     --copyright="Copyright (c) 2026 DTS Digital Transformation Services" ^
     --remove-output ^
     main.py
@@ -62,7 +62,7 @@ if errorlevel 1 (
 )
 
 echo.
-echo SUCCESS: dist_bin\ESA_Lite_v2.1.0.exe
-echo Optional smoke: dist_bin\ESA_Lite_v2.1.0.exe --print-runtime-paths
+echo SUCCESS: dist_bin\ESA_Lite_v2.1.1.exe
+echo Optional smoke: dist_bin\ESA_Lite_v2.1.1.exe --print-runtime-paths
 endlocal
 pause

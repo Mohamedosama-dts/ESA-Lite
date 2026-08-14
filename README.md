@@ -27,7 +27,7 @@ Release assets (exact names):
 | File | Role |
 |------|------|
 | `ESA_Lite_en.msi` / `ESA_Lite_ar.msi` | Localized installer |
-| `ESA_Lite_v2.1.0.exe` | Portable / core executable |
+| `ESA_Lite_v2.1.1.exe` | Portable / core executable |
 
 See [packaging/DEPLOY_ARTIFACT_CONTRACT.md](packaging/DEPLOY_ARTIFACT_CONTRACT.md). Tags `v*` publish a GitHub Release with those three files.
 

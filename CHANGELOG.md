@@ -4,6 +4,10 @@ All notable changes to ESA-Lite are documented here.
 
 ## Unreleased
 
+## 2.1.1
+
+WinCert key-link for ITIDA, silent ePass CSP/KSP registration in the MSI, and installer launch fix.
+
 ### Windows Certificate Store
 
 - After publishing the public cert to `CURRENT_USER\MY`, call `CryptFindCertificateKeyProvInfo` (silent) so the entry links to the token CSP/KSP (`HasPrivateKey=True` when middleware is present)
@@ -19,6 +23,8 @@ All notable changes to ESA-Lite are documented here.
 - MSI registers `EnterSafe ePass2003 CSP v1.0` (native + WOW), KSP, and Calais ATR mapping for ITIDA (32-bit)
 - Bundled `assets/drivers/x86/` for SysWOW64; PKCS#11 assets fallback remains ESA-Lite-only
 - Fix ExitDialog “Launch now”: condition used `WIXUI_EXITDIALOGOPTIONALCHECKBOXTEXT` (label) instead of `WIXUI_EXITDIALOGOPTIONALCHECKBOX` (checked state), so the app never started after install
+- Release assets: `ESA_Lite_v2.1.1.exe`, `ESA_Lite_en.msi`, `ESA_Lite_ar.msi`
+
 ## 2.1.0
 
 Public-repo hardening on top of 2.0.0.
@@ -58,9 +64,4 @@ Public-repo hardening on top of 2.0.0.
 
 ### Docs
 
-- Public README, architecture, hardware, settings, WinCert
-- Removed stale `structure.txt`
-
-## 2.0.0 — baseline
-
-Initial Lite edition: Vue 3 + pywebview UI, PKCS#11 engine, CLI, Nuitka + WiX packaging. Token display, PIN, and certificate view only.
+- Architecture, settings, hardware, and tray notes under `docs/`

@@ -15,15 +15,15 @@ There is **no** secret baking. Tags `v*` publish a GitHub Release with the three
 | Runtime AppData | `%LOCALAPPDATA%\DTS\ESA-Lite` |
 | MSI UpgradeCode | `e7b2f1a4-1234-4567-89ab-cdef12345678` (unchanged) |
 | Bundle UpgradeCode | `f8c3d4e5-1234-4abc-def1-234567890abc` (unchanged) |
-| Contract EXE | `dist_bin\ESA_Lite_v2.1.0.exe` |
+| Contract EXE | `dist_bin\ESA_Lite_v2.1.1.exe` |
 | Contract MSIs | `dist_bin\ESA_Lite_en.msi`, `dist_bin\ESA_Lite_ar.msi` |
-| Burn (out of contract) | `dist_bin\ESA_Lite_Setup_v2.1.0.exe` |
+| Burn (out of contract) | `dist_bin\ESA_Lite_Setup_v2.1.1.exe` |
 
 Writable data is always AppData. Nuitka `onefile_*` unpack is read-only assets only. See [docs/SETTINGS.md](../docs/SETTINGS.md).
 
 **ePass middleware (MSI):** `setup.wxs` copies `assets/drivers/x64` → System32 and `assets/drivers/x86` → SysWOW64, and registers EnterSafe CSP/KSP + Calais ATR so **ITIDA** (32-bit) can sign without Feitian UI. PKCS#11 assets fallback inside the app does not replace that OS registration — see [docs/HARDWARE.md](../docs/HARDWARE.md).
 
-**CI smoke:** after Nuitka, the workflow runs `ESA_Lite_v2.1.0.exe --print-runtime-paths` (JSON via `ESA_PATHS_OUT`). Success requires `IS_FROZEN`, `DATA_DIR` under `...\DTS\ESA-Lite`, and no `\onefile_`.
+**CI smoke:** after Nuitka, the workflow runs `ESA_Lite_v2.1.1.exe --print-runtime-paths` (JSON via `ESA_PATHS_OUT`). Success requires `IS_FROZEN`, `DATA_DIR` under `...\DTS\ESA-Lite`, and no `\onefile_`.
 
 **CI speed:** PRs build UI + EXE + smoke only. MSI/Bundle run on push to `main`/`master` or tag `v*`.
 
@@ -40,8 +40,8 @@ Writable data is always AppData. Nuitka `onefile_*` unpack is read-only assets o
 From the repository root:
 
 1. `packaging\build_ui.bat` — Vite → `interfaces\ui\dist`
-2. `packaging\build_exe.bat` — Nuitka → `dist_bin\ESA_Lite_v2.1.0.exe`
-3. Optional smoke: `dist_bin\ESA_Lite_v2.1.0.exe --print-runtime-paths`
+2. `packaging\build_exe.bat` — Nuitka → `dist_bin\ESA_Lite_v2.1.1.exe`
+3. Optional smoke: `dist_bin\ESA_Lite_v2.1.1.exe --print-runtime-paths`
 4. WiX (from repo root):
 
 ```bat
@@ -53,7 +53,7 @@ candle -ext WixUIExtension -ext WixUtilExtension -dRepoRoot=%REPO_ROOT% -dLangua
 light -ext WixUIExtension -ext WixUtilExtension -loc packaging\wix\ar-SA.wxl packaging\wix\setup_ar.wixobj -o dist_bin\ESA_Lite_ar.msi
 
 candle -ext WixBalExtension -dRepoRoot=%REPO_ROOT% packaging\wix\bundle.wxs -o packaging\wix\bundle.wixobj
-light -ext WixBalExtension packaging\wix\bundle.wixobj -o dist_bin\ESA_Lite_Setup_v2.1.0.exe
+light -ext WixBalExtension packaging\wix\bundle.wixobj -o dist_bin\ESA_Lite_Setup_v2.1.1.exe
 ```
 
 Asset names: [`DEPLOY_ARTIFACT_CONTRACT.md`](DEPLOY_ARTIFACT_CONTRACT.md).

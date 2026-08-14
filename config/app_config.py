@@ -5,7 +5,7 @@ class AppConfig:
     def __init__(self):
         # Agent Identity
         self.MACHINE_NAME = platform.node()
-        self.AGENT_VERSION = "2.1.0"
+        self.AGENT_VERSION = "2.1.1"
         self.AGENT_PREFIX = "ESA"
         self.AGENT_FULL_NAME = "Electronic Signature Agent – Lite"
 

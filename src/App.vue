@@ -20,7 +20,7 @@ import dtsLogo from './assets/dts.png'
 const tokens = ref([])
 const theme = ref('light')
 const appPrefix = ref('ESA')
-const version = ref('2.1.0')
+const version = ref('2.1.1')
 const activeSerial = ref(null)
 const isInitialLoading = ref(true) // حالة تحميل أولية لضمان استقرار البداية
 const pinAttempts = ref(0) // عداد المحاولات الفاشلة
@@ -74,7 +74,7 @@ const initialize = async () => {
         if (data) {
             locale.value = data.lang || 'ar'
             appPrefix.value = data.prefix || 'ESA'
-            version.value = data.version || '2.1.0'
+            version.value = data.version || '2.1.1'
             applyThemeClass(data.theme || 'light')
             updateDocumentMeta()
         }

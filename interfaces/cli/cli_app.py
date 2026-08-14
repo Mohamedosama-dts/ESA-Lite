@@ -7,7 +7,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".
 from core.containers import ApplicationScope
 
 def print_banner():
-    print("\nESA-Lite CLI 2.1.0")
+    print("\nESA-Lite CLI 2.1.1")
 
 def list_tokens_action(engine):
     print("\n[1] Scanning for tokens...")
